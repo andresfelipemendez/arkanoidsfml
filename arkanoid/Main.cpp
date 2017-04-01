@@ -1,64 +1,54 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <random>
+#include <unordered_map>
 
 int main(int argc, char** argv) 
 {
 	sf::RenderWindow renderWindow(sf::VideoMode(640, 480), "window");
 	sf::Event event;
-
 	sf::Clock clock;
-	auto color(sf::Color::Red);
+	std::unordered_map<int, bool> keys;
+	std::list<int> changedKeys;
 
-	srand(time(nullptr));
-
-	std::uniform_int_distribution<int> randomColorRange(0, 255);
-	std::random_device rd;
-	std::mt19937 randomNumbers(rd());
 	while (renderWindow.isOpen())
 	{
+		changedKeys.clear();
 		while (renderWindow.pollEvent(event)) {
 			if (event.type == sf::Event::EventType::Closed)
 				renderWindow.close();
 
 			if(event.type == sf::Event::EventType::KeyPressed)
 			{
-				if (event.key.code == sf::Keyboard::Space)
-					color.r = rand() % 255;
+				if(keys.count(event.key.code) == 0)
+				{
+					keys[event.key.code] = true;
+					changedKeys.push_back(event.key.code);
+				}
+			}
+
+			if (event.type == sf::Event::EventType::KeyReleased)
+			{
+				if (keys.count(event.key.code) == 1)
+				{
+					keys.erase(event.key.code);
+					changedKeys.push_back(event.key.code);
+				}
 			}
 		}
 		
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
-				color.r = 0;
-			else
-				color.r = randomColorRange(randomNumbers);
+		//std::cout << "Elapsed time in microseconds: " << clock.getElapsedTime().asMicroseconds() << std::endl;
+		std::cout << "Currently pressed keys: ";
 
-		}
+		for (auto& keyValue : keys)
+			std::cout << keyValue.first << " ";
+		std::cout << std::endl;
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
-				color.g = 0;
-			else
-				color.g = randomColorRange(randomNumbers);
+		if(!changedKeys.empty())
+			std::cout << "Changed keys !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << std::endl;
 
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
-				color.b = 0;
-			else
-				color.b = randomColorRange(randomNumbers);
-
-		}
-
-		std::cout << "Elapsed time in microseconds:" << clock.getElapsedTime().asMicroseconds() << std::endl;
 		clock.restart();
 
-		renderWindow.clear(color);
+		renderWindow.clear();
 		renderWindow.display();
 	}
 	
