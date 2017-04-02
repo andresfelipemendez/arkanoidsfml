@@ -1,11 +1,20 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+
+using namespace std;
+using namespace sf;
+
+constexpr unsigned int windowWidth{ 800 }, windowHeight{ 600 };
 
 int main(int argc, char** argv) 
 {
-	sf::RenderWindow renderWindow(sf::VideoMode(640, 480), "window");
+	RenderWindow window{ { windowWidth, windowHeight }, "Arkanoid - 1" };
+	window.setFramerateLimit(60);
+
 	while (true)
 	{
-		renderWindow.clear();
-		renderWindow.display();
+		window.clear(Color::Black);
+		if (Keyboard::isKeyPressed(Keyboard::Key::Escape)) break;
+		window.display();
 	}
 }
